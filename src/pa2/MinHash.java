@@ -19,13 +19,20 @@ public class MinHash {
 		File f = new File(path+folder);
 		File fa[] = f.listFiles();
 		
-		try{
-			Scanner delimiterScanner = new Scanner(fa[0]);
+		for(int i = 0, length = fa.length; i < length; ++i){
+			try{
+				Scanner delimiterScanner = new Scanner(fa[i]);
+				delimiterScanner.useDelimiter(".|,|:|;|'");
+				
+				
+				delimiterScanner.close();			
+			}catch(IOException e){
+				e.printStackTrace();
+			}
 			
-			
-		}catch(IOException e){
-			e.printStackTrace();
 		}
+		
+		
 		
 		
 //		for(int i = 0; i< fa.length; ++i){
