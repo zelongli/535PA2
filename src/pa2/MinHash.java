@@ -28,8 +28,8 @@ public class MinHash {
 				delimiterScanner.close();			
 			}catch(IOException e){
 				e.printStackTrace();
-			}
-			
+		fasdfsadf	}
+			fasdf
 		}
 		
 		
