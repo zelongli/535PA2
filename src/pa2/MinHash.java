@@ -3,52 +3,56 @@ package pa2;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Scanner;
-import java.util.Set;
 
 public class MinHash {
 	int numDocs;
 	
 	ArrayList<String> allDocsName = new ArrayList<String>(1024);
-	ArrayList<ArrayList<String>> termMatrix = new ArrayList<ArrayList<String>>(1024);
-	Set<String> termSet = new HashSet<String>(); 
+	ArrayList<ArrayList<Integer>> termMatrix = new ArrayList<ArrayList<Integer>>(1024);
+	HashMap<String,Integer> termMap = new HashMap<String,Integer>(); 
 	
 	public MinHash(String folder, int numPermutations){
 		String path = "./docs/";
 		File f = new File(path+folder);
 		File fa[] = f.listFiles();
 		
-		for(int i = 0, length = fa.length; i < length; ++i){
+		for(int i = 0, length = fa.length; i < 10; ++i){
 			try{
 				Scanner delimiterScanner = new Scanner(fa[i]);
-				delimiterScanner.useDelimiter(".|,|:|;|'");
+				delimiterScanner.useDelimiter("[\\s,.:;']+");
+				termMatrix.add(new ArrayList<Integer>());
 				
 				
-				delimiterScanner.close();			
+				allDocsName.add(fa[i].getName());
+				System.out.println(fa[i].getName());
+				while(delimiterScanner.hasNext()){
+					String temp = delimiterScanner.next();
+					
+					if(termMap.get(temp) == null){
+						termMap.put(temp, termMap.size());
+					}
+					termMatrix.get(i).add(termMap.get(temp));
+
+				}
+
+				delimiterScanner.close();	
+				
 			}catch(IOException e){
 				e.printStackTrace();
 			}
 			
 		}
-		
-		
-		
-		
-//		for(int i = 0; i< fa.length; ++i){
-//			++numDocs;
-//			if(fa[i].isDirectory()){
-//				System.out.println(fa[i].getName()+ "im a directory");
-//			}else{
-//				System.out.println(fa[i].getName()+ "im a file");
-//			}
-//		}
-//		System.out.println("# of docs = " + numDocs);
 	}
 	
-	public void allDocs(){
-		
-		
+	public String[] allDocs(){
+		return allDocsName.toArray(new String[allDocsName.size()]);
+	}
+	
+	public double exactJaccard(String file1, String file2){
+		System.out.println(allDocsName.indexOf("space-735.txt"));
+		return 1.1;
 	}
 	
 	
