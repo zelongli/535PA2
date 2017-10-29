@@ -20,7 +20,7 @@ public class MinHash {
 		this.numP = numPermutations;
 		String path = "./docs/";
 		File f = new File(path+folder);
-		File fa[] = f.listFiles()sadfasfd;
+		File fa[] = f.listFiles();
 		
 		for(int i = 0, length = fa.length; i < 5; ++i){
 			try{
