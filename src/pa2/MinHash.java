@@ -15,8 +15,8 @@ public class MinHash {
 	
 	ArrayList<String> allDocsName = new ArrayList<String>(1000);
 	ArrayList<HashSet<Integer>> termMatrix = new ArrayList<HashSet<Integer>>(1000);
-	HashMap<String,Integer> termMap = new HashMap<String,Integer>(); 
-	private int[][] minHashMatrix;
+	HashMap<String,Integer> termHashMap = new HashMap<String,Integer>(); 
+	private int[][] minHashMatrix; //each row is the MinHashSig of a doc
 	
 	int numPmt;
 	
@@ -24,7 +24,7 @@ public class MinHash {
 		this.numPmt = numPermutations;
 		String path = "./docs/";
 		File f = new File(path+folder);
-		File farray[] = f.listFiles();
+		File[] farray = f.listFiles();
 				
 		for(int i = 0, length = farray.length; i < length; ++i){
 			try{
@@ -38,17 +38,15 @@ public class MinHash {
 											
 				while(delimiterScanner.hasNext()){
 					String temp = delimiterScanner.next().toLowerCase();
-					
-					
-					
+									
 					if(temp.length()<3 || temp.equals("the")){
 						continue;
 					}
 		//			System.out.println(temp);
-					if(termMap.get(temp) == null){
-						termMap.put(temp, termMap.size());//e.g first element, size = 0, map(firstelement -> 0)
+					if(termHashMap.get(temp) == null){
+						termHashMap.put(temp, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
 					}
-					termMatrix.get(i).add(termMap.get(temp));
+					termMatrix.get(i).add(termHashMap.get(temp));
 				}
 				delimiterScanner.close();	
 				
@@ -60,6 +58,7 @@ public class MinHash {
 	}
 	
 	public String[] allDocs(){
+//		System.out.println(allDocsName.toArray(new String[allDocsName.size()]).length);
 		return allDocsName.toArray(new String[allDocsName.size()]);
 	}
 	
@@ -87,10 +86,11 @@ public class MinHash {
 		
 		for(int i = 0; i < numPmt; ++i){
 			int currentMin = prime;
-			for(Integer element : termMatrix.get(index)){ //get x for ax+b
-				if (currentMin > (valueAB[i][0]*element+valueAB[i][1])%prime){
-					currentMin = (valueAB[i][0]*element+valueAB[i][1])%prime;
-				}
+			for(Integer term : termMatrix.get(index)){ //get x for ax+b
+				if (currentMin > (valueAB[i][0]*term + valueAB[i][1])%prime){
+					currentMin = (valueAB[i][0]*term + valueAB[i][1])%prime;
+//					System.out.println("current min = " + currentMin);				
+					}
 			}
 			docMinHashSig[i] = currentMin;
 		}
@@ -122,13 +122,13 @@ public class MinHash {
 				++match;
 			}
 		}
-		System.out.println("match size " + match);
+//		System.out.println("match size " + match);
 		return (double)match/(double)numPmt;
 	}
 	
 	
 	public int numTerms(){
-		return termMap.size();
+		return termHashMap.size();
 	}
 	
 	public int numPermutations(){
@@ -160,8 +160,8 @@ public class MinHash {
 	}
 	
 	public void setABP(){
-		prime = nextPrime(termMap.size());
-//		System.out.println(termMap.size());//test
+		prime = nextPrime(termHashMap.size());
+//		System.out.println(termHashMap.size());//test
 //		System.out.println(prime);//test
 		valueAB = new int[numPmt][2];
 		Random random = new Random();
