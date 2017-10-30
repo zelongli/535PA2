@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MinHash {
 	int numDocs;
@@ -27,7 +30,7 @@ public class MinHash {
 		String path = "./docs/";
 		File f = new File(path+folder);
 		File[] farray = f.listFiles();
-				
+
 		for(int i = 0, length = farray.length; i < length; ++i){
 			
 //			System.out.println(farray[i].getName());
@@ -45,16 +48,15 @@ public class MinHash {
 			        	if(aword.length()<3 || temp.equals("the")){
 			        		continue;
 							}
-			        	 
+
 			        	if(termHashMap.get(aword) == null){
 							termHashMap.put(aword, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
 							}
 							termMatrix.get(i).add(termHashMap.get(aword));
-		//				System.out.println(aword);
-			         }
+						System.out.println(aword);
+			         }//continue
 			       } // end while 
 				br.close();
-				
 			}catch(IOException e){
 				e.printStackTrace();
 			}
@@ -75,10 +77,10 @@ public class MinHash {
 		HashSet<Integer> union = new HashSet<Integer>(termMatrix.get(file1index));
 		
 		intersection.retainAll(termMatrix.get(file2index));
-//		System.out.println("intersection size : " + intersection.size());
+		System.out.println("intersection size : " + intersection.size());
 		
 		union.addAll(termMatrix.get(file2index));
-//		System.out.println("union size : " + union.size());
+		System.out.println("union size : " + union.size());
 
 		return (double)intersection.size()/(double)union.size();		
 	}
@@ -92,8 +94,9 @@ public class MinHash {
 			int currentMin = prime;
 			HashSet<Integer> arow = termMatrix.get(index);
 			for(Integer term : arow){ //get x for ax+b
-				if (currentMin > (valueAB[i][0]*term + valueAB[i][1])%prime){
-					currentMin = (valueAB[i][0]*term + valueAB[i][1])%prime;
+				int termhash = (valueAB[i][0]*term + valueAB[i][1])%prime;
+				if (currentMin > termhash){
+					currentMin = termhash;
 //					System.out.println("current min = " + currentMin);				
 					}
 			}
@@ -105,11 +108,27 @@ public class MinHash {
 	public int[][] minHashMatrix(){
 		int numAllDocs = allDocsName.size();
 		minHashMatrix = new int[numAllDocs][numPmt];//global variable
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(16);
 		
 		for(int i = 0, k = numAllDocs; i < k ; ++i){
+			final int docIndex = i;
+			fixedThreadPool.execute(new Runnable(){
+				public void run(){
+					minHashMatrix[docIndex] = minHashSig(allDocsName.get(docIndex));
+				}
+			});
+			
 //			System.out.println("this doc name " + allDocsName.get(i));
-			minHashMatrix[i] = minHashSig(allDocsName.get(i));
+			
 		}
+		fixedThreadPool.shutdown();
+		
+		try {
+			fixedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			} catch (InterruptedException e) {
+			  e.printStackTrace();
+			}
+		
 		//for KxN transpose
 		int[][] minHashMatrixKxN = new int [numPmt][allDocsName.size()];
 		for(int i = 0 ; i < numPmt ; ++i){
