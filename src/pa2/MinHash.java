@@ -25,34 +25,38 @@ public class MinHash {
 		String path = "./docs/";
 		File f = new File(path+folder);
 		File farray[] = f.listFiles();
-		setABP();
-		
-		for(int i = 0, length = farray.length; i < 5; ++i){
+				
+		for(int i = 0, length = farray.length; i < length; ++i){
 			try{
 				Scanner delimiterScanner = new Scanner(farray[i]);
-				delimiterScanner.useDelimiter("[\\s,.:;']+");
+				delimiterScanner.useDelimiter("[\\s,.;:']+");
 				
 				allDocsName.add(farray[i].getName());
-				System.out.println(farray[i].getName());
+//				System.out.println(farray[i].getName());
 				
-				termMatrix.add(new HashSet<Integer>());
+				termMatrix.add(new HashSet<Integer>()); // termMatrix is a arraylist of HashSet
 											
 				while(delimiterScanner.hasNext()){
-					String temp = delimiterScanner.next();
-					temp.toLowerCase();
+					String temp = delimiterScanner.next().toLowerCase();
+					
+					
+					
+					if(temp.length()<3 || temp.equals("the")){
+						continue;
+					}
+		//			System.out.println(temp);
 					if(termMap.get(temp) == null){
-						termMap.put(temp, termMap.size());
+						termMap.put(temp, termMap.size());//e.g first element, size = 0, map(firstelement -> 0)
 					}
 					termMatrix.get(i).add(termMap.get(temp));
 				}
-
 				delimiterScanner.close();	
 				
 			}catch(IOException e){
 				e.printStackTrace();
 			}
-			
 		}
+		setABP();
 	}
 	
 	public String[] allDocs(){
@@ -63,13 +67,13 @@ public class MinHash {
 		int file1index = allDocsName.indexOf(file1);
 		int file2index = allDocsName.indexOf(file2);
 		
-		HashSet<Integer> intersection = new HashSet<Integer>(termMatrix.get(1));
-		HashSet<Integer> union = new HashSet<Integer>(termMatrix.get(1));
+		HashSet<Integer> intersection = new HashSet<Integer>(termMatrix.get(file1index));
+		HashSet<Integer> union = new HashSet<Integer>(termMatrix.get(file1index));
 		
-		intersection.retainAll(termMatrix.get(2));
+		intersection.retainAll(termMatrix.get(file2index));
 		System.out.println("intersection size : " + intersection.size());
 		
-		union.addAll(termMatrix.get(2));
+		union.addAll(termMatrix.get(file2index));
 		System.out.println("union size : " + union.size());
 
 		return (double)intersection.size()/(double)union.size();
@@ -83,7 +87,7 @@ public class MinHash {
 		
 		for(int i = 0; i < numPmt; ++i){
 			int currentMin = prime;
-			for(Integer element : termMatrix.get(index)){
+			for(Integer element : termMatrix.get(index)){ //get x for ax+b
 				if (currentMin > (valueAB[i][0]*element+valueAB[i][1])%prime){
 					currentMin = (valueAB[i][0]*element+valueAB[i][1])%prime;
 				}
@@ -100,21 +104,25 @@ public class MinHash {
 //			System.out.println("this doc name " + allDocsName.get(i));
 			minHashMatrix[i] = minHashSig(allDocsName.get(i));
 		}
-
-		return minHashMatrix;
+		//for KxN transpose
+		int[][] minHashMatrixKxN = new int [numPmt][allDocsName.size()];
+		for(int i = 0 ; i < numPmt ; ++i){
+			for(int j = 0 ; j < allDocsName.size(); ++j){
+				minHashMatrixKxN[i][j] = minHashMatrix[j][i];
+			}
+		}	
+		return minHashMatrixKxN;
 	}
 	
 	public double approximateJaccard(String file1, String file2){
-//		allDocsName.indexOf(file1);
-//		allDocsName.indexOf(file2);
 		int match = 0;
-		
+
 		for(int i = 0 ; i < numPmt; ++i){
 			if(minHashMatrix[allDocsName.indexOf(file1)][i] == minHashMatrix[allDocsName.indexOf(file2)][i]){
 				++match;
 			}
 		}
-		
+		System.out.println("match size " + match);
 		return (double)match/(double)numPmt;
 	}
 	
@@ -153,10 +161,9 @@ public class MinHash {
 	
 	public void setABP(){
 		prime = nextPrime(termMap.size());
-//		System.out.println(allTerms.size());//test
-//		System.out.println(p);//test
+//		System.out.println(termMap.size());//test
+//		System.out.println(prime);//test
 		valueAB = new int[numPmt][2];
-//		minHash = new int[numPmt][files.length];
 		Random random = new Random();
 		for(int i=0; i<numPmt; i++){
 			valueAB[i][0] = Math.abs(random.nextInt() % prime);
