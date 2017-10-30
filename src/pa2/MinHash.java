@@ -48,7 +48,7 @@ public class MinHash {
 					}
 					termMatrix.get(i).add(termHashMap.get(temp));
 				}
-				delimiterScanner.close();	
+				delimiterScanner.close();
 				
 			}catch(IOException e){
 				e.printStackTrace();
@@ -70,10 +70,10 @@ public class MinHash {
 		HashSet<Integer> union = new HashSet<Integer>(termMatrix.get(file1index));
 		
 		intersection.retainAll(termMatrix.get(file2index));
-		System.out.println("intersection size : " + intersection.size());
+//		System.out.println("intersection size : " + intersection.size());
 		
 		union.addAll(termMatrix.get(file2index));
-		System.out.println("union size : " + union.size());
+//		System.out.println("union size : " + union.size());
 
 		return (double)intersection.size()/(double)union.size();
 		
@@ -117,8 +117,8 @@ public class MinHash {
 	public double approximateJaccard(String file1, String file2){
 		int match = 0;
 
-		for(int i = 0 ; i < numPmt; ++i){
-			if(minHashMatrix[allDocsName.indexOf(file1)][i] == minHashMatrix[allDocsName.indexOf(file2)][i]){
+		for(int i = 0, file1index = allDocsName.indexOf(file1), file2index = allDocsName.indexOf(file2) ; i < numPmt; ++i){
+			if(minHashMatrix[file1index][i] == minHashMatrix[file2index][i]){
 				++match;
 			}
 		}

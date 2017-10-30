@@ -1,6 +1,9 @@
 package pa2;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;  
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;  
 
 public class MinHashAccuracy {
 	int nonAccPair;
@@ -15,16 +18,37 @@ public class MinHashAccuracy {
 		String path = "./docs/";
 		File f = new File(path+folder);
 		File[] farray = f.listFiles();
+		
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(16);
+		System.out.println("let find too diff");
 		for(File aFile : farray){
 			for(File bFile : farray){
-				double approx = minHash.approximateJaccard(aFile.getName(), bFile.getName());
-				double exact = minHash.approximateJaccard(aFile.getName(), bFile.getName());
-				if(Math.abs(approx - exact)>errorP){
-					++nonAccPair;
-				}
+				fixedThreadPool.execute(new Runnable(){
+				    public void run(){
+						double approx = minHash.approximateJaccard(aFile.getName(), bFile.getName());
+						double exact = minHash.exactJaccard(aFile.getName(), bFile.getName());
+//						double diff = approx - exact;
+//						System.out.println("diff is" + diff);
+						
+						if(Math.abs(approx - exact)>errorP){
+							synchronized (this){   
+								// synchronized keyword on block of  code
+								++nonAccPair;
+				            }
+						}
+				    }
+				   }); 
 			}
-		}
-		System.out.println("num of approx exact too diff pairs = " + nonAccPair);
+		}//end of outter for-loop
 		
+		fixedThreadPool.shutdown();
+		
+		try {
+			fixedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			} catch (InterruptedException e) {
+			  e.printStackTrace();
+			}
+		
+		System.out.println("num of approx exact too diff pairs = " + nonAccPair);
 	}
 }
