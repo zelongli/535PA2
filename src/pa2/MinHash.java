@@ -1,6 +1,8 @@
 package pa2;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +16,7 @@ public class MinHash {
 	int prime;
 	
 	ArrayList<String> allDocsName = new ArrayList<String>(1000);
-	ArrayList<HashSet<Integer>> termMatrix = new ArrayList<HashSet<Integer>>(1000);
+	ArrayList<HashSet<Integer>> termMatrix = new ArrayList<HashSet<Integer>>(1000);//term in digit
 	HashMap<String,Integer> termHashMap = new HashMap<String,Integer>(); 
 	private int[][] minHashMatrix; //each row is the MinHashSig of a doc
 	
@@ -27,28 +29,31 @@ public class MinHash {
 		File[] farray = f.listFiles();
 				
 		for(int i = 0, length = farray.length; i < length; ++i){
+			
+//			System.out.println(farray[i].getName());
+			allDocsName.add(farray[i].getName());
+			termMatrix.add(new HashSet<Integer>()); // termMatrix is a arraylist of HashSet
+
+			String thisLine;
 			try{
-				Scanner delimiterScanner = new Scanner(farray[i]);
-				delimiterScanner.useDelimiter("[\\s,.;:']+");
+				BufferedReader br = new BufferedReader(new FileReader(farray[i]));
 				
-				allDocsName.add(farray[i].getName());
-//				System.out.println(farray[i].getName());
-				
-				termMatrix.add(new HashSet<Integer>()); // termMatrix is a arraylist of HashSet
-											
-				while(delimiterScanner.hasNext()){
-					String temp = delimiterScanner.next().toLowerCase();
-									
-					if(temp.length()<3 || temp.equals("the")){
-						continue;
-					}
-		//			System.out.println(temp);
-					if(termHashMap.get(temp) == null){
-						termHashMap.put(temp, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
-					}
-					termMatrix.get(i).add(termHashMap.get(temp));
-				}
-				delimiterScanner.close();
+				while ((thisLine = br.readLine()) != null){
+					String[] temp = thisLine.split("[\\s,.;:']+");
+			        for(String aword : temp){//foreach word in this line
+			        	aword.toLowerCase();
+			        	if(aword.length()<3 || temp.equals("the")){
+			        		continue;
+							}
+			        	 
+			        	if(termHashMap.get(aword) == null){
+							termHashMap.put(aword, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
+							}
+							termMatrix.get(i).add(termHashMap.get(aword));
+		//				System.out.println(aword);
+			         }
+			       } // end while 
+				br.close();
 				
 			}catch(IOException e){
 				e.printStackTrace();
@@ -75,8 +80,7 @@ public class MinHash {
 		union.addAll(termMatrix.get(file2index));
 //		System.out.println("union size : " + union.size());
 
-		return (double)intersection.size()/(double)union.size();
-		
+		return (double)intersection.size()/(double)union.size();		
 	}
 	
 	public int[] minHashSig(String fileName){
@@ -86,7 +90,8 @@ public class MinHash {
 		
 		for(int i = 0; i < numPmt; ++i){
 			int currentMin = prime;
-			for(Integer term : termMatrix.get(index)){ //get x for ax+b
+			HashSet<Integer> arow = termMatrix.get(index);
+			for(Integer term : arow){ //get x for ax+b
 				if (currentMin > (valueAB[i][0]*term + valueAB[i][1])%prime){
 					currentMin = (valueAB[i][0]*term + valueAB[i][1])%prime;
 //					System.out.println("current min = " + currentMin);				
@@ -98,16 +103,17 @@ public class MinHash {
 	}
 	
 	public int[][] minHashMatrix(){
-		minHashMatrix = new int[allDocsName.size()][numPmt];
+		int numAllDocs = allDocsName.size();
+		minHashMatrix = new int[numAllDocs][numPmt];//global variable
 		
-		for(int i = 0; i < allDocsName.size(); ++i){
+		for(int i = 0, k = numAllDocs; i < k ; ++i){
 //			System.out.println("this doc name " + allDocsName.get(i));
 			minHashMatrix[i] = minHashSig(allDocsName.get(i));
 		}
 		//for KxN transpose
 		int[][] minHashMatrixKxN = new int [numPmt][allDocsName.size()];
 		for(int i = 0 ; i < numPmt ; ++i){
-			for(int j = 0 ; j < allDocsName.size(); ++j){
+			for(int j = 0 ; j < numAllDocs; ++j){
 				minHashMatrixKxN[i][j] = minHashMatrix[j][i];
 			}
 		}	
