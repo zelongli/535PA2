@@ -43,17 +43,15 @@ public class MinHash {
 				
 				while ((thisLine = br.readLine()) != null){
 					String[] temp = thisLine.split("[\\s,.;:']+");
-			        for(String aword : temp){//foreach word in this line
-			        	aword.toLowerCase();
-			        	if(aword.length()<3 || temp.equals("the")){
+			        for(String aword : temp){	//foreach word in this line
+			        	aword = aword.toLowerCase();
+			        	if(aword.length()<3 || aword.equals("the")){
 			        		continue;
 							}
-
-			        	if(termHashMap.get(aword) == null){
+			        	if(termHashMap.get(aword) == null){			        		
 							termHashMap.put(aword, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
-							}
-							termMatrix.get(i).add(termHashMap.get(aword));
-						System.out.println(aword);
+			        	}
+							termMatrix.get(i).add(termHashMap.get(aword));					
 			         }//continue
 			       } // end while 
 				br.close();
@@ -77,10 +75,10 @@ public class MinHash {
 		HashSet<Integer> union = new HashSet<Integer>(termMatrix.get(file1index));
 		
 		intersection.retainAll(termMatrix.get(file2index));
-		System.out.println("intersection size : " + intersection.size());
-		
+//		System.out.println("intersection size : " + intersection.size());
+
 		union.addAll(termMatrix.get(file2index));
-		System.out.println("union size : " + union.size());
+//		System.out.println("union size : " + union.size());
 
 		return (double)intersection.size()/(double)union.size();		
 	}

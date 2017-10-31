@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MinHashAccuracy {
 	int nonAccPair;
+	
 	public MinHashAccuracy(){
 		this.nonAccPair = 0;
 	}
@@ -20,15 +21,15 @@ public class MinHashAccuracy {
 		File[] farray = f.listFiles();
 		
 		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(16);
-		System.out.println("let find too diff");
+		System.out.println("let's find too diff");
+		
 		for(File aFile : farray){
 			fixedThreadPool.execute(new Runnable(){
 				public void run(){
 				    for(File bFile : farray){//for each doc A, a thread gives nonAccPair num per all Doc
 						double approx = minHash.approximateJaccard(aFile.getName(), bFile.getName());
 						double exact = minHash.exactJaccard(aFile.getName(), bFile.getName());
-
-//						System.out.println("diff is" + diff);						
+					
 						if(Math.abs(approx - exact) > errorP){
 							synchronized (this){   
 								// synchronized keyword on block of  code
@@ -49,6 +50,6 @@ public class MinHashAccuracy {
 			  e.printStackTrace();
 			}
 		
-		System.out.println("num of approx exact too diff pairs = " + nonAccPair);
+		System.out.println("the number of pairs for which exact and approx. similaritites differ by more than e is: " + nonAccPair);
 	}
 }

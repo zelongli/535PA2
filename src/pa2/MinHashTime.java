@@ -14,7 +14,11 @@ public class MinHashTime {
 		String path = "./docs/";
 		File f = new File(path+folder);
 		File[] farray = f.listFiles();
+		
+		minHash.minHashMatrix();
+		
 		long startTime = System.currentTimeMillis();
+		
 		
 		for(File aFile : farray){
 			for(File bFile : farray){
@@ -24,7 +28,7 @@ public class MinHashTime {
 		}
 		long endTime = System.currentTimeMillis();
 		long duration = (long)(endTime - startTime)/1000;
-		
+		System.out.printf("duration of approximateJaccard is %d \n", duration);
 		startTime = System.currentTimeMillis();
 		
 		minHash.minHashMatrix();
@@ -35,10 +39,10 @@ public class MinHashTime {
 		for(File aFile : farray){
 			for(File bFile : farray){
 				double approx = minHash.approximateJaccard(aFile.getName(), bFile.getName());
-//				double exact = minHash.approximateJaccard(aFile.getName(), bFile.getName());
 			}
 		}
 		endTime = System.currentTimeMillis();
 		duration = (long)(endTime - startTime)/1000;
+		System.out.printf("duration of exactJaccard is %d \n", duration);
 	}
 }
