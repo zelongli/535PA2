@@ -43,12 +43,12 @@ public class MinHash {
 				
 				while ((thisLine = br.readLine()) != null){
 					String[] temp = thisLine.split("[\\s,.;:']+");
-			        for(String aword : temp){	//foreach word in this line
+			        for(String aword : temp){	//for each word in this line
 			        	aword = aword.toLowerCase();
 			        	if(aword.length()<3 || aword.equals("the")){
 			        		continue;
 							}
-			        	if(termHashMap.get(aword) == null){			        		
+			        	else if(termHashMap.get(aword) == null){			        		
 							termHashMap.put(aword, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
 			        	}
 							termMatrix.get(i).add(termHashMap.get(aword));					
