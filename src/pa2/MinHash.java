@@ -25,7 +25,7 @@ public class MinHash {
 	
 	int numPmt;
 	
-	public MinHash(String folder, int numPermutations){
+	public MinHash(String folder, int numPermutations){ //construct MinHash Matrix in this function
 		this.numPmt = numPermutations;
 		String path = "./docs/";
 		File f = new File(path+folder);
@@ -47,11 +47,10 @@ public class MinHash {
 			        	aword = aword.toLowerCase();
 			        	if(aword.length()<3 || aword.equals("the")){
 			        		continue;
-							}
-			        	else if(termHashMap.get(aword) == null){			        		
+						}else if(termHashMap.get(aword) == null){			        		
 							termHashMap.put(aword, termHashMap.size());//e.g first element, size = 0, map(firstelement -> 0)
 			        	}
-							termMatrix.get(i).add(termHashMap.get(aword));					
+						termMatrix.get(i).add(termHashMap.get(aword));					
 			         }//continue
 			       } // end while 
 				br.close();
@@ -96,7 +95,7 @@ public class MinHash {
 				if (currentMin > termhash){
 					currentMin = termhash;
 //					System.out.println("current min = " + currentMin);				
-					}
+				}
 			}
 			docMinHashSig[i] = currentMin;
 		}
@@ -122,7 +121,7 @@ public class MinHash {
 		fixedThreadPool.shutdown();
 		
 		try {
-			fixedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			fixedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 			  e.printStackTrace();
 			}

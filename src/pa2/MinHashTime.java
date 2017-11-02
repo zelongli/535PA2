@@ -15,34 +15,32 @@ public class MinHashTime {
 		File f = new File(path+folder);
 		File[] farray = f.listFiles();
 		
-		minHash.minHashMatrix();
-		
 		long startTime = System.currentTimeMillis();
-		
-		
-		for(File aFile : farray){
-			for(File bFile : farray){
-//				double approx = minHash.approximateJaccard(aFile.getName(), bFile.getName());
-				double exact = minHash.approximateJaccard(aFile.getName(), bFile.getName());
-			}
-		}
+		minHash.minHashMatrix();
 		long endTime = System.currentTimeMillis();
 		long duration = (long)(endTime - startTime)/1000;
-		System.out.printf("duration of approximateJaccard is %d \n", duration);
+		System.out.printf("time of building Minhash Matrix: %d \n", duration);
 		startTime = System.currentTimeMillis();
+	
+		for(File aFile : farray){
+			for(File bFile : farray){
+				minHash.approximateJaccard(aFile.getName(), bFile.getName());  //do not need to store the returned value, just test time
+			}
+		}
 		
-		minHash.minHashMatrix();
 		endTime = System.currentTimeMillis();
 		duration = (long)(endTime - startTime)/1000;
+		
+		System.out.printf("duration of computing approximateJaccard is %d \n", duration);
 		
 		startTime = System.currentTimeMillis();
 		for(File aFile : farray){
 			for(File bFile : farray){
-				double approx = minHash.approximateJaccard(aFile.getName(), bFile.getName());
+				minHash.approximateJaccard(aFile.getName(), bFile.getName());
 			}
 		}
 		endTime = System.currentTimeMillis();
 		duration = (long)(endTime - startTime)/1000;
-		System.out.printf("duration of exactJaccard is %d \n", duration);
+		System.out.printf("duration of computing exactJaccard is %d \n", duration);
 	}
 }

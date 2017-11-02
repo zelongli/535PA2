@@ -20,9 +20,9 @@ public class MinHashAccuracy {
 		File f = new File(path+folder);
 		File[] farray = f.listFiles();
 		
-		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(16);
 		System.out.println("let's find too diff");
-		
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(16);
+
 		for(File aFile : farray){
 			fixedThreadPool.execute(new Runnable(){
 				public void run(){
@@ -32,7 +32,7 @@ public class MinHashAccuracy {
 					
 						if(Math.abs(approx - exact) > errorP){
 							synchronized (this){   
-								// synchronized keyword on block of  code
+								// synchronized keyword on block of code
 								++nonAccPair;
 							}
 						}
@@ -40,12 +40,12 @@ public class MinHashAccuracy {
 				}
 			});
 		
-		}//end of outter for-loop
+		}//end of outer for-loop
 		
 		fixedThreadPool.shutdown();
 		
 		try {
-			fixedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			fixedThreadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 			  e.printStackTrace();
 			}
