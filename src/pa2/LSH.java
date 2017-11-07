@@ -1,4 +1,5 @@
-//package similarityCalculator;
+package pa2;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
